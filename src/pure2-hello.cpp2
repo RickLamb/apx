@@ -1,0 +1,15 @@
+
+name: () -> std::string = {
+    s: std::string = "world";
+    decorate(s);
+    return s;
+}
+
+hello: () -> int = {
+    std::cout << "Hello " << name() << "\n";
+    return 0;
+}
+
+decorate: (inout s: std::string) = {
+    s = "[" + s + "]";
+}

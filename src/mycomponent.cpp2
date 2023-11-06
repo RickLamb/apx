@@ -1,0 +1,72 @@
+
+#include "component.h"
+
+Transform: @component type = {
+    x : float;
+    y : float;
+	r : float;
+    Update: (in this) = {
+	}
+}
+
+Name: @component type = {
+    name:    std::string;
+    Update: (in this) = {
+	}
+}
+
+MyComponent: @component type = {
+    private address		:	std::string	= "123 Main St.";
+
+    OtherFunc: (inout this) = {
+       address = "other";
+    }
+
+    Update: (inout this) = {
+       address = "new";
+    }
+}
+
+// Commonly accessed player data brought together to reduce data dependency
+PlayerData: @component type = {
+    x :	float;
+    y :	float;
+
+    Update: (in this) = {
+	}
+}
+
+MoveForward: @component type = {
+    speed : float;
+
+    Update: (in this) = {
+	}
+
+    PostUpdate: (this, in ctx : ECS_Context, inout xform : Transform) = {
+	   xform.x += this.speed * ctx.deltaTime * ctx.math.forward(xform.r);
+    }
+}
+
+FacePlayer: @component type = {
+	private mPlayerId : EntityId;
+
+    Update: (this, in ctx : ECS_Context, inout xform : Transform, in players : ComponentSystem<PlayerData>) = {
+		player : * const PlayerData = players.Get(this.mPlayerId);
+		if (player) {
+			xform.r = ctx.math.lookAt(player*.x, player*.y, xform.x, xform.y);
+		}
+    }
+}
+
+// registerMyComponents: (inout mgr : *ComponentManager) -> void;
+
+registerMyComponents: (inout mgr : *ComponentManager) -> void = {
+    RegisterComponent<Transform>(mgr, "Transform");
+    RegisterComponent<Name>(mgr, "Name");
+    RegisterComponent<PlayerData>(mgr, "PlayerData");
+    RegisterComponent<MoveForward>(mgr, "MoveForward");
+    RegisterComponent<FacePlayer>(mgr, "FacePlayer");
+    RegisterComponent<MyComponent>(mgr, "MyComponent");
+}
+
+
